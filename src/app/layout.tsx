@@ -14,10 +14,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className="antialiased bg-slate-50">
-        <Navbar />
-        {children}
-      </body>
+      <body className="antialiased bg-slate-50" suppressHydrationWarning>
+  <Navbar />
+  {children}
+</body>
     </html>
   );
 }
