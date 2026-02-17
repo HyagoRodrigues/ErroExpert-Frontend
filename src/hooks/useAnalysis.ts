@@ -10,8 +10,10 @@ export function useAnalysis() {
     setResult(null);
     try {
       const data = await api.analisar(payload);
-      // O FastAPI retorna { "status": "sucesso", "data": {...} }
-      setResult(data.data);
+      
+      
+      setResult(data);
+      
     } catch (error) {
       console.error(error);
       alert("Erro ao conectar com o servidor Python.");
