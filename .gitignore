@@ -39,3 +39,19 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# arquivos de ambiente (ESSENCIAL)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# arquivos de log e debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# pastas de IDE
+.vscode/
+.idea/
