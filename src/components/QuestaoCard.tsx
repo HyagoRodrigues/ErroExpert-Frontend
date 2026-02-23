@@ -1,108 +1,97 @@
 'use client';
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, Brain, AlertCircle, ExternalLink, Bookmark } from 'lucide-react';
+import { ChevronDown, ChevronUp, Brain, Zap, Eye } from 'lucide-react';
 
 export function QuestaoCard({ q }: { q: any }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isRevealed, setIsRevealed] = useState(false);
 
-  // Lógica para tratar o flashcard vindo do banco (Frente | Verso)
-  const flashcardParts = q.flashcard_anki?.split('|') || ['', ''];
-  const frente = flashcardParts[0]?.trim();
-  const verso = flashcardParts[1]?.trim();
+  // Lógica de Extração de Flashcard
+  let frente = '', verso = '';
+  const flashData = q.flashcard_anki;
+  if (flashData && typeof flashData === 'object') {
+    frente = flashData.frente || '';
+    verso = flashData.verso || '';
+  } else if (typeof flashData === 'string') {
+    try {
+      const parsed = JSON.parse(flashData);
+      frente = parsed.frente; verso = parsed.verso;
+    } catch {
+      const parts = flashData.split('|');
+      frente = parts[0]?.trim() || ''; verso = parts[1]?.trim() || '';
+    }
+  }
+
+  const handleToggle = () => {
+    setIsOpen(!isOpen);
+    if (!isOpen) setIsRevealed(false);
+  };
 
   return (
     <div className={`bg-white rounded-3xl border transition-all duration-300 ${
       isOpen ? 'border-blue-400 shadow-md' : 'border-slate-200 hover:border-slate-300 shadow-sm'
     }`}>
-      {/* Cabeçalho Resumido */}
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full p-5 flex items-center justify-between text-left"
-      >
+      <button onClick={handleToggle} className="w-full p-5 flex items-center justify-between text-left">
         <div className="flex items-center gap-4">
-          <div className="px-3 py-1 rounded-full bg-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-600">
-            {q.banca}
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-500">
+            <Zap size={10} className="text-amber-500" />
+            Active Recall
           </div>
-          <span className="text-xs font-bold text-slate-500 truncate max-w-[300px]">
-            {q.assunto}
+          <span className="text-xs font-bold text-slate-500 truncate max-w-[400px]">
+            {q.enunciado}
           </span>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-[10px] font-bold text-slate-400">
-            {new Date(q.created_at).toLocaleDateString('pt-BR')}
-          </span>
-          {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+        <div className="text-slate-400">
+          {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
         </div>
       </button>
 
-      {/* Conteúdo Expandido */}
       {isOpen && (
-        <div className="px-8 pb-8 space-y-8 animate-in slide-in-from-top-2 duration-300">
-          
-          {/* Área do Enunciado */}
-          <div className="space-y-4">
-            <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Enunciado da Questão</p>
-              <p className="text-sm text-slate-600 leading-relaxed font-medium">
-                {q.enunciado}
-              </p>
-            </div>
+        <div className="p-6 pt-0 space-y-6 animate-in slide-in-from-top-2">
+          <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 text-sm text-slate-700 leading-relaxed italic">
+            "{q.enunciado}"
           </div>
 
-          {/* Diagnóstico de Contraste */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-5 bg-red-50/50 rounded-2xl border border-red-100">
-              <div className="flex items-center gap-2 mb-3 text-red-700">
-                <AlertCircle size={14} />
-                <p className="text-[10px] font-black uppercase tracking-widest">Onde você escorregou</p>
-              </div>
-              <p className="text-xs text-slate-700 leading-relaxed font-medium">
-                {q.causa_erro}
-              </p>
-            </div>
-
-            <div className="p-5 bg-emerald-50/50 rounded-2xl border border-emerald-100">
-              <div className="flex items-center gap-2 mb-3 text-emerald-700">
-                <Brain size={14} />
-                <p className="text-[10px] font-black uppercase tracking-widest">Conceito Chave</p>
-              </div>
-              <p className="text-xs text-slate-700 leading-relaxed font-medium">
-                {q.fundamentacao_tecnica}
-              </p>
-            </div>
-          </div>
-
-          {/* Seção Anki Flashcard - Design Escuro Identidade */}
-          <div className="space-y-3 pt-4">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-700 shadow-sm">
-                <Brain className="h-4 w-4 text-white" />
-              </div>
-              <h3 className="text-sm font-black text-slate-900 uppercase tracking-tighter">Flashcard de Fixação</h3>
-            </div>
-            
-            <div className="overflow-hidden rounded-2xl bg-slate-900 border border-slate-800 shadow-xl">
-              <div className="border-b border-slate-800 p-5">
-                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2">Frente</p>
-                <p className="text-sm leading-relaxed text-slate-100 font-medium">{frente}</p>
-              </div>
-              <div className="p-5 bg-slate-800/40">
-                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2">Verso</p>
-                <p className="text-sm leading-relaxed text-blue-300 font-bold">{verso}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Rodapé de Ações */}
-          <div className="flex items-center justify-between pt-6 border-t border-slate-100">
-            <div className="flex items-center gap-2 text-[10px] font-black text-slate-300 uppercase tracking-widest">
-              <Bookmark size={12} />
-              Identificador: #{q.id.toString().slice(0, 5)}
-            </div>
-            <button className="flex items-center gap-2 text-xs font-black text-blue-600 hover:text-blue-700 transition-colors uppercase tracking-widest group">
-              Revisar Tópico <ExternalLink size={14} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          {!isRevealed ? (
+            <button 
+              onClick={() => setIsRevealed(true)}
+              className="w-full py-8 border-2 border-dashed border-blue-200 rounded-2xl flex flex-col items-center justify-center gap-2 group hover:border-blue-400 hover:bg-blue-50/50 transition-all"
+            >
+              <Eye size={20} className="text-blue-600 mb-1" />
+              <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Revelar Análise e Flashcard</p>
             </button>
-          </div>
+          ) : (
+            <div className="space-y-6 animate-in fade-in zoom-in-95 duration-300">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="p-5 bg-red-50/50 rounded-2xl border border-red-100">
+                  <p className="text-[9px] font-black text-red-600 uppercase mb-2 tracking-widest">Causa do Erro</p>
+                  <p className="text-sm text-slate-600 font-medium">{q.causa_erro}</p>
+                </div>
+                <div className="p-5 bg-blue-600 rounded-2xl text-white shadow-lg">
+                  <p className="text-[9px] font-black uppercase tracking-widest opacity-60 mb-2">Fundamentação Técnica</p>
+                  <p className="text-sm leading-relaxed">{q.fundamentacao_tecnica}</p>
+                </div>
+              </div>
+
+              {/* FLASHCARD COM LABELS */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-slate-400">
+                  <Brain size={14} />
+                  <h4 className="text-[10px] font-black uppercase tracking-widest">Card para Revisão (Anki)</h4>
+                </div>
+                <div className="overflow-hidden rounded-2xl bg-slate-900 border border-slate-800 shadow-xl">
+                  <div className="border-b border-slate-800 p-5">
+                    <p className="text-[9px] font-black uppercase text-blue-500 mb-3 tracking-[0.2em]">Frente</p>
+                    <p className="text-sm text-slate-100 font-medium leading-relaxed">{frente}</p>
+                  </div>
+                  <div className="p-5 bg-slate-800/30">
+                    <p className="text-[9px] font-black uppercase text-emerald-500 mb-3 tracking-[0.2em]">Verso</p>
+                    <p className="text-sm text-blue-200 font-bold leading-relaxed">{verso}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

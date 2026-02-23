@@ -57,22 +57,25 @@ export const api = {
   },
 
   
-  getQuestoes: async (disciplina?: string, assunto?: string) => {
-    const headers = await getHeaders();
-    const params = new URLSearchParams();
-    if (disciplina) params.append('disciplina', disciplina);
-    if (assunto) params.append('assunto', assunto);
+getQuestoes: async (disciplina?: string, assunto?: string, subtopico?: string) => {
+  const headers = await getHeaders();
+  const params = new URLSearchParams();
+  if (disciplina) params.append('disciplina', disciplina);
+  if (assunto) params.append('assunto', assunto);
+  if (subtopico) params.append('subtopico', subtopico); // Novo filtro
 
-    const res = await fetch(`${API_BASE_URL}/caderno/questoes?${params}`, { headers });
-    if (!res.ok) throw new Error('Erro ao carregar questões');
-    return res.json();
-  },
+  const res = await fetch(`${API_BASE_URL}/caderno/questoes?${params}`, { headers });
+  if (!res.ok) throw new Error('Erro ao buscar questões');
+  return res.json();
+},
 
- 
-  getSintese: async () => {
-    const headers = await getHeaders();
-    const res = await fetch(`${API_BASE_URL}/caderno/sintese`, { headers });
-    if (!res.ok) throw new Error('Erro ao carregar síntese');
-    return res.json();
-  }
+getSintese: async (disciplina?: string) => {
+  const headers = await getHeaders();
+  const params = new URLSearchParams();
+  if (disciplina) params.append('disciplina', disciplina); // Filtro para o Mentor
+
+  const res = await fetch(`${API_BASE_URL}/caderno/sintese?${params}`, { headers });
+  if (!res.ok) throw new Error('Erro ao carregar síntese');
+  return res.json();
+}
 };
